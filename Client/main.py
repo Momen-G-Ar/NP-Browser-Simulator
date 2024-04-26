@@ -172,7 +172,12 @@ class MainWindow(QMainWindow):
 
     def save_item(self):
         name = self.name_value_bar.toPlainText()
-        price = int(self.price_value_bar.toPlainText())
+        if (name == ''):
+            name = 'None',
+        try:
+            price = float(self.price_value_bar.toPlainText())
+        except:
+            price = 0
         self.item = {'name': name, 'price': price}
 
     def save_auth(self):
