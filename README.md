@@ -15,7 +15,7 @@ This code simulates the operation exchanging requests and responses between clie
 
 ## Install and Run
 
--   Install git repository: `[git clone https://github.com/Momen-G-Ar/SIC-Assembler.git](https://github.com/Momen-G-Ar/NP-Browser-Simulator.git)`
+-   Install git repository: `git clone https://github.com/Momen-G-Ar/SIC-Assembler.git`
 -   Change your directory to the project directory using `cd NP-Browser-Simulator`
 -   Make sure that all dependencies of the project are installed on your computer
 -   Run the server using `uvicorn Server/main:app --port 9000`
