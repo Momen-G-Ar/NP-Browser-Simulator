@@ -74,6 +74,7 @@ class MainWindow(QMainWindow):
         self.password_bar.setMaximumHeight(30)
         self.auth_bnt = QPushButton('Save Auth')
         self.auth_bnt.setMinimumHeight(30)
+        self.auth_bnt.clicked.connect(lambda: self.save_auth())
 
         self.item_label = QLabel('Item info')
         self.item_label.setMaximumHeight(30)
@@ -102,6 +103,8 @@ class MainWindow(QMainWindow):
 
         self.delete_btn = QPushButton('DELETE')
         self.delete_btn.setMinimumHeight(30)
+        self.delete_btn.clicked.connect(
+            lambda: self.delete_request())
 
         self.horizontal1.addWidget(self.get_btn)
         self.horizontal1.addWidget(self.url_bar)
@@ -113,7 +116,6 @@ class MainWindow(QMainWindow):
         self.horizontal2.addWidget(self.password_label)
         self.horizontal2.addWidget(self.password_bar)
         self.horizontal2.addWidget(self.auth_bnt)
-        self.auth_bnt.clicked.connect(lambda: self.save_auth())
 
         self.horizontal3.addWidget(self.item_label)
 
@@ -159,19 +161,11 @@ class MainWindow(QMainWindow):
         html = str(response.text)
         self.browser.setHtml(html)
 
-    def head_request(self, url: str):
-        if (not url.startswith('http://')):
-            url = 'http://' + url
-            self.url_bar.setText(url)
-        response = requests.head(url)
-        html = str(response.text)
-        self.browser.setHtml(html)
-
     def delete_request(self, url: str):
         if (not url.startswith('http://')):
             url = 'http://' + url
             self.url_bar.setText(url)
-        response = requests.delete(url)
+        response = requests.delete(url, auth=self.auth)
         html = str(response.text)
         self.browser.setHtml(html)
 
