@@ -1,9 +1,10 @@
-from PyQt5.QtCore import Qt, QUrl
-from PyQt5.QtWidgets import QMainWindow, QHBoxLayout, QTextEdit, QLabel, QPushButton, QApplication, QMessageBox, QVBoxLayout, QWidget
+from PyQt5.QtCore import QUrl
+from PyQt5.QtWidgets import QMainWindow, QHBoxLayout, QTextEdit, QLabel, QPushButton, QApplication, QVBoxLayout, QWidget
 from PyQt5.QtWebEngineWidgets import QWebEngineView
+
 import requests
 from requests.auth import HTTPBasicAuth
-
+import strings
 
 import sys
 import os
@@ -13,19 +14,7 @@ class Browser(QWebEngineView):
 
     def __init__(self):
         super().__init__()
-        html = '''
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Document</title>
-            </head>
-            <body style='display:flex; justify-content:center; align-items: center'>
-                <h1> Welcome to our initial page</h1>
-            </body>
-            </html>
-        '''
+        html = strings.basic_html
 
         # With QWebEnginePage.setHtml, the html is loaded immediately.
         # baseUrl is used to resolve relative URLs in the document.
@@ -50,6 +39,9 @@ class MainWindow(QMainWindow):
         self.resize(1200, 800)
         self.init_widgets()
         self.init_layout()
+        self.setWindowTitle('Momin Browser')
+
+        self.invalid_method_html = strings.invalid_method_html
 
     def init_widgets(self):
         self.browser = Browser()
@@ -104,7 +96,7 @@ class MainWindow(QMainWindow):
         self.delete_btn = QPushButton('DELETE')
         self.delete_btn.setMinimumHeight(30)
         self.delete_btn.clicked.connect(
-            lambda: self.delete_request())
+            lambda: self.delete_request(self.url_bar.toPlainText()))
 
         self.horizontal1.addWidget(self.get_btn)
         self.horizontal1.addWidget(self.url_bar)
@@ -136,38 +128,47 @@ class MainWindow(QMainWindow):
         centralWidget.setLayout(layout)
         self.setCentralWidget(centralWidget)
 
-    # def load_finished(self, status):
-    #     self.msg = QMessageBox()
-    #     self.msg.setIcon(QMessageBox.Information)
-    #     self.msg.setWindowTitle('Load Status')
-    #     self.msg.setText(f"It is {str(status)} that the page loaded.")
-    #     self.msg.show()
-
     def get_request(self, url: str):
         if (not url.startswith('http://')):
             url = 'http://' + url
             self.url_bar.setText(url)
-        response = requests.get(
-            url, auth=self.auth)
-        html = str(response.text)
-        self.browser.setHtml(html)
+        if (url != 'http://'):
+            response = requests.get(
+                url, auth=self.auth)
+            if (response.status_code == 200):
+                self.browser.setHtml(response.text)
+            else:
+                self.browser.setHtml(self.invalid_method_html)
+        else:
+            self.browser.setHtml(self.invalid_method_html)
 
     def post_request(self, url: str):
         if (not url.startswith('http://')):
             url = 'http://' + url
             self.url_bar.setText(url)
-        response = requests.post(
-            url,  auth=self.auth, json=(self.item))
-        html = str(response.text)
-        self.browser.setHtml(html)
+        if (url != 'http://'):
+            response = requests.post(
+                url, auth=self.auth, json=self.item)
+            if (response.status_code == 201):
+                self.browser.setHtml(response.text)
+            else:
+                self.browser.setHtml(self.invalid_method_html)
+        else:
+            self.browser.setHtml(self.invalid_method_html)
 
     def delete_request(self, url: str):
         if (not url.startswith('http://')):
             url = 'http://' + url
             self.url_bar.setText(url)
-        response = requests.delete(url, auth=self.auth)
-        html = str(response.text)
-        self.browser.setHtml(html)
+        if (url != 'http://'):
+            response = requests.delete(url, auth=self.auth, json=self.item)
+            if (response.status_code == 204):
+                self.browser.setHtml(
+                    strings.start_html + strings.item_deleted_successfully+strings.end_html)
+            else:
+                self.browser.setHtml(self.invalid_method_html)
+        else:
+            self.browser.setHtml(self.invalid_method_html)
 
     def save_item(self):
         name = self.name_value_bar.toPlainText()
